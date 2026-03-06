@@ -90,7 +90,7 @@ struct DailyTasksView: View {
                     .frame(height: 60)
 
                 HStack {
-                    Text("🐶")
+                    Text(store.dogBreed.icon)
                         .font(.system(size: 32))
 
                     VStack(alignment: .leading, spacing: 0) {
@@ -348,7 +348,7 @@ struct DailyTasksView: View {
                     }
 
                     VStack(spacing: 12) {
-                        Text("🎉🐶🎉")
+                        Text("🎉\(store.dogBreed.icon)🎉")
                             .font(.system(size: 50))
 
                         Text("SUPER STAR!")

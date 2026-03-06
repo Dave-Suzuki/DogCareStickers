@@ -259,44 +259,72 @@ struct WeeklyProgressView: View {
         store.dayLogs.values.reduce(0) { $0 + $1.completedCount }
     }
 
-    // MARK: - Family Leaderboard
+    // MARK: - Family Awards Leaderboard
 
     private var familyLeaderboard: some View {
         let stats = store.memberStats()
+        let breakdown = store.memberTaskBreakdown()
         return Group {
             if !stats.isEmpty {
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("Family Helpers")
-                        .font(.system(size: 18, weight: .heavy, design: .rounded))
-                        .foregroundColor(Color(hex: "8B7355"))
+                VStack(alignment: .leading, spacing: 14) {
+                    HStack {
+                        Text("Family Awards")
+                            .font(.system(size: 18, weight: .heavy, design: .rounded))
+                            .foregroundColor(Color(hex: "8B7355"))
+                        Spacer()
+                        Text("🏅")
+                            .font(.system(size: 22))
+                    }
 
-                    ForEach(Array(stats.prefix(5).enumerated()), id: \.element.member) { index, stat in
-                        HStack(spacing: 10) {
-                            Text(index == 0 ? "🏆" : index == 1 ? "🥈" : "🥉")
-                                .font(.system(size: 22))
+                    ForEach(Array(stats.enumerated()), id: \.element.member) { index, stat in
+                        let award = funAward(for: stat.member, rank: index, taskBreakdown: breakdown[stat.member] ?? [:])
+                        HStack(spacing: 12) {
+                            // Award badge
+                            ZStack {
+                                Circle()
+                                    .fill(
+                                        LinearGradient(
+                                            colors: award.colors,
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    .frame(width: 48, height: 48)
+                                Text(award.emoji)
+                                    .font(.system(size: 24))
+                            }
 
-                            Text(stat.member)
-                                .font(.system(size: 15, weight: .bold, design: .rounded))
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(stat.member)
+                                    .font(.system(size: 15, weight: .bold, design: .rounded))
+                                Text(award.title)
+                                    .font(.system(size: 13, weight: .heavy, design: .rounded))
+                                    .foregroundStyle(
+                                        LinearGradient(colors: award.colors, startPoint: .leading, endPoint: .trailing)
+                                    )
+                                Text(award.subtitle)
+                                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                                    .foregroundColor(Color(.systemGray))
+                            }
 
                             Spacer()
 
-                            Text("\(stat.count)")
-                                .font(.system(size: 20, weight: .heavy, design: .rounded))
-                                .foregroundStyle(
-                                    LinearGradient(
-                                        colors: index == 0
-                                            ? [Color(hex: "FFD93D"), Color(hex: "F97316")]
-                                            : [Color(hex: "A0A0A0"), Color(hex: "808080")],
-                                        startPoint: .top,
-                                        endPoint: .bottom
+                            VStack(spacing: 2) {
+                                Text("\(stat.count)")
+                                    .font(.system(size: 22, weight: .heavy, design: .rounded))
+                                    .foregroundStyle(
+                                        LinearGradient(colors: award.colors, startPoint: .top, endPoint: .bottom)
                                     )
-                                )
-
-                            Text("tasks")
-                                .font(.system(size: 11, weight: .medium, design: .rounded))
-                                .foregroundColor(Color(.systemGray))
+                                Text("tasks")
+                                    .font(.system(size: 10, weight: .medium, design: .rounded))
+                                    .foregroundColor(Color(.systemGray))
+                            }
                         }
-                        .padding(.vertical, 4)
+                        .padding(12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 14)
+                                .fill(award.colors[0].opacity(0.08))
+                        )
                     }
                 }
                 .padding(16)
@@ -306,6 +334,62 @@ struct WeeklyProgressView: View {
                         .shadow(color: .black.opacity(0.06), radius: 8, y: 4)
                 )
             }
+        }
+    }
+
+    private struct FunAward {
+        let title: String
+        let subtitle: String
+        let emoji: String
+        let colors: [Color]
+    }
+
+    private func funAward(for member: String, rank: Int, taskBreakdown: [String: Int]) -> FunAward {
+        // Find their most-done task to give a themed award
+        let topTask = taskBreakdown.max(by: { $0.value < $1.value })?.key ?? ""
+
+        // Task-based themed awards
+        let taskAward: FunAward? = {
+            switch topTask.lowercased() {
+            case let t where t.contains("feed"):
+                return FunAward(title: "Chef Extraordinaire", subtitle: "Top kibble server!", emoji: "👨‍🍳",
+                               colors: [Color(hex: "F97316"), Color(hex: "EAB308")])
+            case let t where t.contains("water"):
+                return FunAward(title: "Hydration Hero", subtitle: "Water bowl champion!", emoji: "💧",
+                               colors: [Color(hex: "3B82F6"), Color(hex: "06B6D4")])
+            case let t where t.contains("walk"):
+                return FunAward(title: "Adventure Captain", subtitle: "Best walkies buddy!", emoji: "🥾",
+                               colors: [Color(hex: "22C55E"), Color(hex: "16A34A")])
+            case let t where t.contains("brush"):
+                return FunAward(title: "Grooming Guru", subtitle: "Fluff & shine master!", emoji: "✨",
+                               colors: [Color(hex: "A855F7"), Color(hex: "7C3AED")])
+            case let t where t.contains("play") || t.contains("cuddle"):
+                return FunAward(title: "Fun Commander", subtitle: "Playtime superstar!", emoji: "🎾",
+                               colors: [Color(hex: "EC4899"), Color(hex: "F43F5E")])
+            case let t where t.contains("clean"):
+                return FunAward(title: "Tidy Tornado", subtitle: "Cleanup champion!", emoji: "🌪️",
+                               colors: [Color(hex: "14B8A6"), Color(hex: "0D9488")])
+            case let t where t.contains("train"):
+                return FunAward(title: "Trick Master", subtitle: "Training pro!", emoji: "🎓",
+                               colors: [Color(hex: "EAB308"), Color(hex: "CA8A04")])
+            default:
+                return nil
+            }
+        }()
+
+        if let award = taskAward { return award }
+
+        // Fallback rank-based awards
+        switch rank {
+        case 0:
+            return FunAward(title: "MVP Helper", subtitle: "Most Valuable Pup-parent!", emoji: "🏆",
+                           colors: [Color(hex: "FFD93D"), Color(hex: "F97316")])
+        case 1:
+            return FunAward(title: "Super Sidekick", subtitle: "Always there to help!", emoji: "⭐",
+                           colors: [Color(hex: "A0A0A0"), Color(hex: "C0C0C0")])
+        default:
+            return FunAward(title: "Rising Star", subtitle: "On the way up!", emoji: "🌟",
+                           colors: [Color(hex: "F97316"), Color(hex: "FF6B6B")])
         }
     }
 }

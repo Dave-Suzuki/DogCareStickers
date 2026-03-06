@@ -58,15 +58,6 @@ enum StickerSize {
         }
     }
 
-    var kawaiiEyeSize: CGFloat {
-        switch self {
-        case .small: return 0 // too small for eyes
-        case .medium: return 3
-        case .large: return 5
-        case .xlarge: return 7
-        }
-    }
-
     var cornerRadius: CGFloat {
         switch self {
         case .small: return 10
@@ -163,13 +154,6 @@ struct StickerView: View {
                     }
                 }
                 .padding(size == .small ? 2 : 4)
-                .offset(y: size.kawaiiEyeSize > 0 ? -size.kawaiiEyeSize : 0)
-
-                // Kawaii face (cute eyes + mouth)
-                if size.kawaiiEyeSize > 0 {
-                    kawaiiEyes
-                        .offset(y: size.diameter * 0.28)
-                }
 
                 // Glossy highlight (top shine)
                 glossyHighlight
@@ -178,30 +162,6 @@ struct StickerView: View {
         }
         .frame(width: size.diameter + size.borderWidth * 2,
                height: size.diameter + size.borderWidth * 2)
-    }
-
-    // MARK: - Kawaii Eyes
-
-    private var kawaiiEyes: some View {
-        HStack(spacing: size.kawaiiEyeSize * 2.5) {
-            // Left eye
-            kawaiiEye
-            // Right eye
-            kawaiiEye
-        }
-    }
-
-    private var kawaiiEye: some View {
-        ZStack {
-            Ellipse()
-                .fill(Color.black.opacity(0.7))
-                .frame(width: size.kawaiiEyeSize * 1.3, height: size.kawaiiEyeSize * 1.5)
-            // Highlight dot
-            Circle()
-                .fill(.white)
-                .frame(width: size.kawaiiEyeSize * 0.5, height: size.kawaiiEyeSize * 0.5)
-                .offset(x: -size.kawaiiEyeSize * 0.2, y: -size.kawaiiEyeSize * 0.25)
-        }
     }
 
     // MARK: - Glossy Highlight
@@ -224,14 +184,11 @@ struct StickerView: View {
 
     // MARK: - Clip Shape
 
-    @ViewBuilder
-    private var stickerClipShape: some InsettableShape {
+    private var stickerClipShape: RoundedRectangle {
         switch shape {
         case .circle:
             RoundedRectangle(cornerRadius: size.diameter / 2)
-        case .roundedSquare:
-            RoundedRectangle(cornerRadius: size.cornerRadius)
-        case .star, .hexagon, .heart:
+        case .roundedSquare, .star, .hexagon, .heart:
             RoundedRectangle(cornerRadius: size.cornerRadius)
         }
     }

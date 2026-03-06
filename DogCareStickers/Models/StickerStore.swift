@@ -5,15 +5,22 @@ class StickerStore {
     var tasks: [DogTask]
     var dayLogs: [String: DayLog]  // dateKey -> DayLog
     var dogName: String
+    var dogBreedID: String
 
     private let tasksKey = "dogcare_tasks"
     private let logsKey = "dogcare_logs"
     private let nameKey = "dogcare_dogname"
+    private let breedKey = "dogcare_breed"
+
+    var dogBreed: DogBreed {
+        DogBreed.find(by: dogBreedID) ?? DogBreed.allBreeds.last!
+    }
 
     init() {
         self.tasks = DogTask.defaultTasks
         self.dayLogs = [:]
         self.dogName = "Buddy"
+        self.dogBreedID = "other"
         load()
     }
 
@@ -81,6 +88,19 @@ class StickerStore {
             .sorted { $0.count > $1.count }
     }
 
+    /// Per-member breakdown: which task titles they completed most
+    func memberTaskBreakdown() -> [String: [String: Int]] {
+        var breakdown: [String: [String: Int]] = [:]  // memberName -> (taskTitle -> count)
+        for log in dayLogs.values {
+            for (taskID, completion) in log.completions {
+                let name = completion.memberName ?? "Unknown"
+                let taskTitle = tasks.first(where: { $0.id == taskID })?.title ?? "Task"
+                breakdown[name, default: [:]][taskTitle, default: 0] += 1
+            }
+        }
+        return breakdown
+    }
+
     func isTaskDoneToday(_ taskID: UUID) -> Bool {
         todayLog.isCompleted(taskID)
     }
@@ -125,6 +145,7 @@ class StickerStore {
             UserDefaults.standard.set(logsData, forKey: logsKey)
         }
         UserDefaults.standard.set(dogName, forKey: nameKey)
+        UserDefaults.standard.set(dogBreedID, forKey: breedKey)
     }
 
     private func load() {
@@ -138,6 +159,9 @@ class StickerStore {
         }
         if let name = UserDefaults.standard.string(forKey: nameKey) {
             dogName = name
+        }
+        if let breed = UserDefaults.standard.string(forKey: breedKey) {
+            dogBreedID = breed
         }
     }
 }

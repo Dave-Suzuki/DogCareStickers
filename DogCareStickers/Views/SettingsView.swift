@@ -6,6 +6,7 @@ struct SettingsView: View {
     @State private var editingName = ""
     @State private var showingNameEdit = false
     @State private var showAddMember = false
+    @State private var showBreedPicker = false
 
     var body: some View {
         @Bindable var store = store
@@ -15,12 +16,12 @@ struct SettingsView: View {
                 // Dog section
                 Section {
                     HStack {
-                        Text("🐶")
+                        Text(store.dogBreed.icon)
                             .font(.system(size: 40))
                         VStack(alignment: .leading) {
                             Text(store.dogName)
                                 .font(.system(size: 20, weight: .bold, design: .rounded))
-                            Text("Your best friend!")
+                            Text(store.dogBreed.name)
                                 .font(.system(size: 14, design: .rounded))
                                 .foregroundColor(.secondary)
                         }
@@ -32,6 +33,24 @@ struct SettingsView: View {
                         .font(.system(size: 14, weight: .medium, design: .rounded))
                     }
                     .padding(.vertical, 4)
+
+                    Button {
+                        showBreedPicker = true
+                    } label: {
+                        HStack {
+                            Label("Dog Breed", systemImage: "pawprint.fill")
+                                .font(.system(size: 14, weight: .medium, design: .rounded))
+                            Spacer()
+                            Text(store.dogBreed.icon + " " + store.dogBreed.name)
+                                .font(.system(size: 13, design: .rounded))
+                                .foregroundColor(.secondary)
+                                .lineLimit(1)
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 12))
+                                .foregroundColor(Color(.systemGray3))
+                        }
+                    }
+                    .foregroundColor(.primary)
                 }
 
                 // Current user section
@@ -173,6 +192,64 @@ struct SettingsView: View {
                 SignInFormSheet(onSignIn: { name, email in
                     auth.signIn(name: name, email: email)
                 })
+            }
+            .sheet(isPresented: $showBreedPicker) {
+                DogBreedPickerSheet(selectedBreedID: store.dogBreedID) { breedID in
+                    store.dogBreedID = breedID
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Dog Breed Picker Sheet
+
+struct DogBreedPickerSheet: View {
+    let selectedBreedID: String
+    let onSelect: (String) -> Void
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            List {
+                ForEach(DogBreed.allBreeds) { breed in
+                    Button {
+                        onSelect(breed.id)
+                        dismiss()
+                    } label: {
+                        HStack(spacing: 14) {
+                            Text(breed.icon)
+                                .font(.system(size: 32))
+                                .frame(width: 44)
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(breed.name)
+                                    .font(.system(size: 15, weight: .semibold, design: .rounded))
+                                    .foregroundColor(.primary)
+                                Text(breed.description)
+                                    .font(.system(size: 12, design: .rounded))
+                                    .foregroundColor(.secondary)
+                            }
+
+                            Spacer()
+
+                            if breed.id == selectedBreedID {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.system(size: 22))
+                                    .foregroundColor(Color(hex: "F97316"))
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    }
+                }
+            }
+            .navigationTitle("Choose Your Dog")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Done") { dismiss() }
+                        .font(.system(size: 15, weight: .medium, design: .rounded))
+                }
             }
         }
     }
