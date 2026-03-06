@@ -1,21 +1,21 @@
-//
-//  DogCareStickersApp.swift
-//  DogCareStickers
-//
-//  Created by DaveS on 3/5/26.
-//
-
 import SwiftUI
-import CoreData
 
 @main
 struct DogCareStickersApp: App {
-    let persistenceController = PersistenceController.shared
+    @State private var store = StickerStore()
+    @State private var auth = AuthManager()
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environment(\.managedObjectContext, persistenceController.container.viewContext)
+            Group {
+                if auth.isSignedIn {
+                    DogCareContentView()
+                } else {
+                    SignInView()
+                }
+            }
+            .environment(store)
+            .environment(auth)
         }
     }
 }
