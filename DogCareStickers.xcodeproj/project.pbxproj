@@ -27,6 +27,7 @@
 		7441653D2F5A8C7E00A3B755 /* DogCareStickers.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DogCareStickers.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7441654F2F5A8C8100A3B755 /* DogCareStickersTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DogCareStickersTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		744165592F5A8C8100A3B755 /* DogCareStickersUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DogCareStickersUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		74672BE62F5A90F4007A3D09 /* DogCareStickers.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = DogCareStickers.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -88,6 +89,13 @@
 				7441653D2F5A8C7E00A3B755 /* DogCareStickers.app */,
 				7441654F2F5A8C8100A3B755 /* DogCareStickersTests.xctest */,
 				744165592F5A8C8100A3B755 /* DogCareStickersUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		74672BE72F5A90F4007A3D09 /* Products */ = {
+			isa = PBXGroup;
+			children = (
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -198,6 +206,12 @@
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 7441653E2F5A8C7E00A3B755 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 74672BE72F5A90F4007A3D09 /* Products */;
+					ProjectRef = 74672BE62F5A90F4007A3D09 /* DogCareStickers.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				7441653C2F5A8C7E00A3B755 /* DogCareStickers */,
